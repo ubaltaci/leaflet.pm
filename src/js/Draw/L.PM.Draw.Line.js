@@ -146,6 +146,9 @@ Draw.Line = Draw.extend({
             // set coords for hintline from marker to last vertex of drawin polyline
             this._hintline.setLatLngs([lastPolygonPoint, this._hintMarker.getLatLng()]);
         }
+        else {
+            this._hintline.setLatLngs([]);
+        }
     },
     _syncHintMarker(e) {
         // move the cursor marker
@@ -267,5 +270,13 @@ Draw.Line = Draw.extend({
         marker.on('click', this._finishShape, this);
 
         return marker;
+    },
+    removeLastVertex() {
+        if (this.enabled() && this._layer && this._layer.pm.removeLastVertex(true)) {
+            const layers = this._layerGroup.getLayers();
+            const lastVertex = layers[layers.length - 1];
+            this._layerGroup.removeLayer(lastVertex);
+            this._syncHintLine();
+        }
     },
 });

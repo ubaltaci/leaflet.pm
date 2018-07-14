@@ -316,7 +316,7 @@ Edit.Line = Edit.extend({
         }
     },
 
-    _removeMarker(e) {
+    _removeMarker(e, isDrawing) {
         // if self intersection isn't allowed, save the coords upon dragstart
         // in case we need to reset the layer
         if (!this.options.allowSelfIntersection) {
@@ -350,8 +350,9 @@ Edit.Line = Edit.extend({
         // set new latlngs to the polygon
         this._layer.setLatLngs(coords);
 
-        // if the ring of the poly has no coordinates left, remove the last coord too
-        if (coordsRing.length <= 1) {
+        // if the ring of the poly has no coordinates left, remove the ring
+        if (coordsRing.length <= 1 && !isDrawing) {
+            // remove coords ring
             coordsRing.splice(0, coordsRing.length);
 
             // set new coords
@@ -366,7 +367,7 @@ Edit.Line = Edit.extend({
         // TODO: we may should remove all empty coord-rings here as well.
 
         // if no coords are left, remove the layer
-        if (this.isEmptyDeep(coords)) {
+        if (this.isEmptyDeep(coords) && !isDrawing) {
             this._layer.remove();
         }
 
@@ -573,5 +574,21 @@ Edit.Line = Edit.extend({
         const latlng = map.unproject(p1._add(p2)._divideBy(2));
 
         return latlng;
+    },
+    removeLastVertex(isDrawing) {
+        let wasRemoved = false;
+        const layer = this._layer;
+        if (layer && layer.pm && layer._map) {
+            layer.pm.enable();
+            const markers = layer.pm._markers;
+            if (markers.length > 0) {
+                const marker = markers[markers.length - 1];
+                this._removeMarker({ target: marker }, isDrawing);
+                wasRemoved = true;
+            }
+            layer.pm.disable();
+        }
+
+        return wasRemoved;
     },
 });
