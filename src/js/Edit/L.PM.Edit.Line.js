@@ -2,24 +2,27 @@ import kinks from '@turf/kinks';
 import get from 'lodash/get';
 import Edit from './L.PM.Edit';
 
-// Shit's getting complicated in here with Multipolygon Support. So here's a quick note about it:
+// Shit"s getting complicated in here with Multipolygon Support. So here"s a quick note about it:
 // Multipolygons with holes means lots of nested, multidimensional arrays.
 // In order to find a value inside such an array you need a path to adress it directly.
-// Example: var arr = [[['a', 'b'], ['c']]];
-// The indexPath to 'b' is [0, 0, 1]. The indexPath to 'c' is [0, 1, 0].
-// So I can get 'b' with: arr[0][0][1].
+// Example: var arr = [[["a", "b"], ["c"]]];
+// The indexPath to "b" is [0, 0, 1]. The indexPath to "c" is [0, 1, 0].
+// So I can get "b" with: arr[0][0][1].
 // Got it? Now you know what is meant when you read "indexPath" around here. Have fun 👍
 
 Edit.Line = Edit.extend({
+
     initialize(layer) {
         this._layer = layer;
         this._enabled = false;
     },
 
     toggleEdit(options) {
+
         if (!this.enabled()) {
             this.enable(options);
-        } else {
+        }
+        else {
             this.disable();
         }
     },
@@ -29,14 +32,14 @@ Edit.Line = Edit.extend({
 
         this._map = this._layer._map;
 
-        // cancel when map isn't available, this happens when the polygon is removed before this fires
+        // cancel when map isn"t available, this happens when the polygon is removed before this fires
         if (!this._map) {
             return;
         }
 
         if (!this.enabled()) {
             // if it was already enabled, disable first
-            // we don't block enabling again because new options might be passed
+            // we don"t block enabling again because new options might be passed
             this.disable();
         }
 
@@ -66,12 +69,30 @@ Edit.Line = Edit.extend({
         this.disable(e.target);
     },
 
+    enableDrag() {
+
+        this._initDraggableLayer();
+    },
+
+    disableDrag() {
+
+        const poly = this._layer;
+        // clean up draggable
+        poly.off('mousedown');
+        poly.off('mouseup');
+
+        const el = poly._path ? poly._path : this._layer._renderer._container;
+        if (el) {
+            L.DomUtil.removeClass(el, 'leaflet-pm-draggable');
+        }
+    },
+
     enabled() {
         return this._enabled;
     },
 
     disable(poly = this._layer) {
-        // if it's not enabled, it doesn't need to be disabled
+        // if it"s not enabled, it doesn"t need to be disabled
         if (!this.enabled()) {
             return false;
         }
@@ -317,7 +338,7 @@ Edit.Line = Edit.extend({
     },
 
     _removeMarker(e, isDrawing) {
-        // if self intersection isn't allowed, save the coords upon dragstart
+        // if self intersection isn"t allowed, save the coords upon dragstart
         // in case we need to reset the layer
         if (!this.options.allowSelfIntersection) {
             const c = this._layer.getLatLngs();
@@ -333,7 +354,7 @@ Edit.Line = Edit.extend({
         // the index path to the marker inside the multidimensional marker array
         const { indexPath, index, parentPath } = this.findDeepMarkerIndex(this._markers, marker);
 
-        // only continue if this is NOT a middle marker (those can't be deleted)
+        // only continue if this is NOT a middle marker (those can"t be deleted)
         if (!indexPath) {
             return;
         }
@@ -396,7 +417,7 @@ Edit.Line = Edit.extend({
             rightMarkerIndex = index + 1 >= markerArr.length ? undefined : index + 1;
         }
 
-        // don't create middlemarkers if there is only one marker left
+        // don"t create middlemarkers if there is only one marker left
         if (rightMarkerIndex !== leftMarkerIndex) {
             const leftM = markerArr[leftMarkerIndex];
             const rightM = markerArr[rightMarkerIndex];
@@ -420,7 +441,8 @@ Edit.Line = Edit.extend({
     isEmptyDeep(l) {
         // thanks for the function, Felix Heck
         const flatten = list =>
-            list.filter(x => ![null, '', undefined].includes(x)).reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
+            list.filter(x => ![null, '', undefined].includes(x))
+                .reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
 
         return !flatten(l).length;
     },
@@ -467,7 +489,8 @@ Edit.Line = Edit.extend({
         parent.splice(index, 1, latlng);
 
         // set new coords on layer
-        this._layer.setLatLngs(coords).redraw();
+        this._layer.setLatLngs(coords)
+            .redraw();
     },
 
     _onMarkerDrag(e) {
@@ -550,7 +573,7 @@ Edit.Line = Edit.extend({
             indexPath,
         });
 
-        // if self intersection isn't allowed, save the coords upon dragstart
+        // if self intersection isn"t allowed, save the coords upon dragstart
         // in case we need to reset the layer
         if (!this.options.allowSelfIntersection) {
             this._coordsBeforeEdit = this._layer.getLatLngs();
@@ -571,7 +594,8 @@ Edit.Line = Edit.extend({
         const p1 = map.project(latlng1);
         const p2 = map.project(latlng2);
 
-        const latlng = map.unproject(p1._add(p2)._divideBy(2));
+        const latlng = map.unproject(p1._add(p2)
+            ._divideBy(2));
 
         return latlng;
     },

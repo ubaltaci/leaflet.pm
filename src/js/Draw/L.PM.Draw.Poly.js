@@ -1,10 +1,10 @@
-import Draw from './L.PM.Draw';
+import Draw from "./L.PM.Draw";
 
 Draw.Poly = Draw.Line.extend({
     initialize(map) {
         this._map = map;
-        this._shape = 'Poly';
-        this.toolbarButtonName = 'drawPolygon';
+        this._shape = "Poly";
+        this.toolbarButtonName = "drawPolygon";
     },
     _finishShape(event) {
         // if self intersection is not allowed, do not finish the shape!
@@ -14,7 +14,7 @@ Draw.Poly = Draw.Line.extend({
 
         // get coordinates, create the leaflet shape and add it to the map
         const coords = this._layer.getLatLngs();
-        if (event && event.type === 'dblclick') {
+        if (event && event.type === "dblclick") {
             // Leaflet creates an extra node with double click
             coords.splice(coords.length - 1, 1);
         }
@@ -24,7 +24,7 @@ Draw.Poly = Draw.Line.extend({
         this.disable();
 
         // fire the pm:create event and pass shape and layer
-        this._map.fire('pm:create', {
+        this._map.fire("pm:create", {
             shape: this._shape,
             layer: polygonLayer,
         });
@@ -40,7 +40,7 @@ Draw.Poly = Draw.Line.extend({
         // create the new marker
         const marker = new L.Marker(latlng, {
             draggable: false,
-            icon: L.divIcon({ className: 'marker-icon' }),
+            icon: L.divIcon({ className: "marker-icon" }),
         });
 
         // mark this marker as temporary
@@ -51,7 +51,7 @@ Draw.Poly = Draw.Line.extend({
 
         // if the first marker gets clicked again, finish this shape
         if (first) {
-            marker.on('click', this._finishShape, this);
+            marker.on("click", this._finishShape, this);
 
             // add the first vertex to "other snapping layers" so the polygon is easier to finish
             this._tempSnapLayerIndex = this._otherSnapLayers.push(marker) - 1;

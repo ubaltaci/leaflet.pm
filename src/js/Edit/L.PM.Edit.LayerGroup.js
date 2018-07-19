@@ -85,13 +85,27 @@ Edit.LayerGroup = L.Class.extend({
             layer.pm.toggleEdit(options);
         });
     },
+    enableDrag() {
+
+        this._layers.forEach((layer) => {
+            layer.pm.enableDrag();
+        });
+    },
+    disableDrag() {
+
+        this._layers.forEach((layer) => {
+            layer.pm.disableDrag();
+        });
+    },
     enable(options) {
+
         this._options = options;
         this._layers.forEach((layer) => {
             layer.pm.enable(options);
         });
     },
     disable() {
+
         this._layers.forEach((layer) => {
             layer.pm.disable();
         });
