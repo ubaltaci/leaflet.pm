@@ -1,20 +1,20 @@
-import Edit from './L.PM.Edit';
+import Edit from "./L.PM.Edit";
 
-// LayerGroup doesn't inherit from L.PM.Edit because it's just calling L.PM.Edit.Poly
+// LayerGroup doesn"t inherit from L.PM.Edit because it"s just calling L.PM.Edit.Poly
 // (which inherits from L.PM.Edit) for each layer,
-// so it's not really a parent class
+// so it"s not really a parent class
 Edit.LayerGroup = L.Class.extend({
     initialize(layerGroup) {
         this._layerGroup = layerGroup;
         this._layers = this.findLayers();
 
         // init all layers of the group
-        this._layers.forEach(layer => this._initLayer(layer));
+        this._layers.forEach((layer) => this._initLayer(layer));
 
         // if a new layer is added to the group, reinitialize
         // This only works for FeatureGroups, not LayerGroups
         // https://github.com/Leaflet/Leaflet/issues/4861
-        this._layerGroup.on('layeradd', (e) => {
+        this._layerGroup.on("layeradd", (e) => {
             if (e.target._pmTempLayer) {
                 return;
             }
@@ -35,14 +35,14 @@ Edit.LayerGroup = L.Class.extend({
         // get all layers of the layer group
         let layers = this._layerGroup.getLayers();
 
-        // filter out layers that don't have leaflet.pm
-        layers = layers.filter(layer => !(layer instanceof L.LayerGroup));
+        // filter out layers that don"t have leaflet.pm
+        layers = layers.filter((layer) => !(layer instanceof L.LayerGroup));
 
-        // filter out layers that don't have leaflet.pm
-        layers = layers.filter(layer => !!layer.pm);
+        // filter out layers that don"t have leaflet.pm
+        layers = layers.filter((layer) => !!layer.pm);
 
-        // filter out everything that's leaflet.pm specific temporary stuff
-        layers = layers.filter(layer => !layer._pmTempLayer);
+        // filter out everything that"s leaflet.pm specific temporary stuff
+        layers = layers.filter((layer) => !layer._pmTempLayer);
 
         // return them
         return layers;
@@ -50,22 +50,22 @@ Edit.LayerGroup = L.Class.extend({
     _initLayer(layer) {
         // available events
         const availableEvents = [
-            'pm:edit',
-            'pm:update',
-            'pm:remove',
-            'pm:dragstart',
-            'pm:drag',
-            'pm:dragend',
-            'pm:snap',
-            'pm:unsnap',
-            'pm:cut',
-            'pm:intersect',
-            'pm:raiseMarkers',
-            'pm:markerdragend',
-            'pm:markerdragstart',
-            'pm:vertexadded',
-            'pm:vertexremoved',
-            'pm:centerplaced',
+            "pm:edit",
+            "pm:update",
+            "pm:remove",
+            "pm:dragstart",
+            "pm:drag",
+            "pm:dragend",
+            "pm:snap",
+            "pm:unsnap",
+            "pm:cut",
+            "pm:intersect",
+            "pm:raiseMarkers",
+            "pm:markerdragend",
+            "pm:markerdragstart",
+            "pm:vertexadded",
+            "pm:vertexremoved",
+            "pm:centerplaced",
         ];
 
         // listen to the events of the layers in this group
@@ -111,11 +111,11 @@ Edit.LayerGroup = L.Class.extend({
         });
     },
     enabled() {
-        const enabled = this._layers.find(layer => layer.pm.enabled());
+        const enabled = this._layers.find((layer) => layer.pm.enabled());
         return !!enabled;
     },
     dragging() {
-        const dragging = this._layers.find(layer => layer.pm.dragging());
+        const dragging = this._layers.find((layer) => layer.pm.dragging());
         return !!dragging;
     },
     getOptions() {

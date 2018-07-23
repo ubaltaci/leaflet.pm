@@ -1,6 +1,6 @@
-import kinks from '@turf/kinks';
-import get from 'lodash/get';
-import Edit from './L.PM.Edit';
+import kinks from "@turf/kinks";
+import get from "lodash/get";
+import Edit from "./L.PM.Edit";
 
 // Shit"s getting complicated in here with Multipolygon Support. So here"s a quick note about it:
 // Multipolygons with holes means lots of nested, multidimensional arrays.
@@ -50,10 +50,10 @@ Edit.Line = Edit.extend({
         this._initMarkers();
 
         // if polygon gets removed from map, disable edit mode
-        this._layer.on('remove', this._onLayerRemove, this);
+        this._layer.on("remove", this._onLayerRemove, this);
 
         if (!this.options.allowSelfIntersection) {
-            this._layer.on('pm:vertexremoved', this._handleSelfIntersectionOnVertexRemoval, this);
+            this._layer.on("pm:vertexremoved", this._handleSelfIntersectionOnVertexRemoval, this);
         }
 
         if (this.options.draggable) {
@@ -78,12 +78,12 @@ Edit.Line = Edit.extend({
 
         const poly = this._layer;
         // clean up draggable
-        poly.off('mousedown');
-        poly.off('mouseup');
+        poly.off("mousedown");
+        poly.off("mouseup");
 
         const el = poly._path ? poly._path : this._layer._renderer._container;
         if (el) {
-            L.DomUtil.removeClass(el, 'leaflet-pm-draggable');
+            L.DomUtil.removeClass(el, "leaflet-pm-draggable");
         }
     },
 
@@ -105,27 +105,27 @@ Edit.Line = Edit.extend({
         poly.pm._markerGroup.clearLayers();
 
         // clean up draggable
-        poly.off('mousedown');
-        poly.off('mouseup');
+        poly.off("mousedown");
+        poly.off("mouseup");
 
         // remove onRemove listener
-        this._layer.off('remove', this._onLayerRemove);
+        this._layer.off("remove", this._onLayerRemove);
 
         if (!this.options.allowSelfIntersection) {
-            this._layer.off('pm:vertexremoved', this._handleSelfIntersectionOnVertexRemoval);
+            this._layer.off("pm:vertexremoved", this._handleSelfIntersectionOnVertexRemoval);
         }
 
         // remove draggable class
         const el = poly._path ? poly._path : this._layer._renderer._container;
-        L.DomUtil.removeClass(el, 'leaflet-pm-draggable');
+        L.DomUtil.removeClass(el, "leaflet-pm-draggable");
 
         // remove invalid class if layer has self intersection
         if (this.hasSelfIntersection()) {
-            L.DomUtil.removeClass(el, 'leaflet-pm-invalid');
+            L.DomUtil.removeClass(el, "leaflet-pm-invalid");
         }
 
         if (this._layerEdited) {
-            this._layer.fire('pm:update', {});
+            this._layer.fire("pm:update", {});
         }
         this._layerEdited = false;
 
@@ -156,27 +156,29 @@ Edit.Line = Edit.extend({
         const el = this._layer._path ? this._layer._path : this._layer._renderer._container;
 
         if (this.hasSelfIntersection()) {
-            if (L.DomUtil.hasClass(el, 'leaflet-pm-invalid')) {
+            if (L.DomUtil.hasClass(el, "leaflet-pm-invalid")) {
                 return;
             }
 
             // if it does self-intersect, mark or flash it red
             if (flash) {
-                L.DomUtil.addClass(el, 'leaflet-pm-invalid');
+                L.DomUtil.addClass(el, "leaflet-pm-invalid");
                 window.setTimeout(() => {
-                    L.DomUtil.removeClass(el, 'leaflet-pm-invalid');
+                    L.DomUtil.removeClass(el, "leaflet-pm-invalid");
                 }, 200);
-            } else {
-                L.DomUtil.addClass(el, 'leaflet-pm-invalid');
+            }
+            else {
+                L.DomUtil.addClass(el, "leaflet-pm-invalid");
             }
 
             // fire intersect event
-            this._layer.fire('pm:intersect', {
+            this._layer.fire("pm:intersect", {
                 intersection: kinks(this._layer.toGeoJSON(15)),
             });
-        } else {
+        }
+        else {
             // if not, reset the style to the default color
-            L.DomUtil.removeClass(el, 'leaflet-pm-invalid');
+            L.DomUtil.removeClass(el, "leaflet-pm-invalid");
         }
     },
 
@@ -227,17 +229,17 @@ Edit.Line = Edit.extend({
     _createMarker(latlng) {
         const marker = new L.Marker(latlng, {
             draggable: !this.options.preventVertexEdit,
-            icon: L.divIcon({ className: 'marker-icon' }),
+            icon: L.divIcon({className: "marker-icon"}),
         });
 
         marker._pmTempLayer = true;
 
-        marker.on('dragstart', this._onMarkerDragStart, this);
-        marker.on('move', this._onMarkerDrag, this);
-        marker.on('dragend', this._onMarkerDragEnd, this);
+        marker.on("dragstart", this._onMarkerDragStart, this);
+        marker.on("move", this._onMarkerDrag, this);
+        marker.on("dragend", this._onMarkerDragEnd, this);
 
         if (!this.options.preventMarkerRemoval) {
-            marker.on('contextmenu', this._removeMarker, this);
+            marker.on("contextmenu", this._removeMarker, this);
         }
 
         this._markerGroup.addLayer(marker);
@@ -255,31 +257,31 @@ Edit.Line = Edit.extend({
         const latlng = this._calcMiddleLatLng(leftM.getLatLng(), rightM.getLatLng());
 
         const middleMarker = this._createMarker(latlng);
-        const middleIcon = L.divIcon({ className: 'marker-icon marker-icon-middle' });
+        const middleIcon = L.divIcon({className: "marker-icon marker-icon-middle"});
         middleMarker.setIcon(middleIcon);
 
         // save reference to this middle markers on the neighboor regular markers
         leftM._middleMarkerNext = middleMarker;
         rightM._middleMarkerPrev = middleMarker;
 
-        middleMarker.on('click', () => {
+        middleMarker.on("click", () => {
             // TODO: move the next two lines inside _addMarker() as soon as
             // https://github.com/Leaflet/Leaflet/issues/4484
             // is fixed
-            const icon = L.divIcon({ className: 'marker-icon' });
+            const icon = L.divIcon({className: "marker-icon"});
             middleMarker.setIcon(icon);
 
             this._addMarker(middleMarker, leftM, rightM);
         });
-        middleMarker.on('movestart', () => {
+        middleMarker.on("movestart", () => {
             // TODO: This is a workaround. Remove the moveend listener and
             // callback as soon as this is fixed:
             // https://github.com/Leaflet/Leaflet/issues/4484
-            middleMarker.on('moveend', () => {
-                const icon = L.divIcon({ className: 'marker-icon' });
+            middleMarker.on("moveend", () => {
+                const icon = L.divIcon({className: "marker-icon"});
                 middleMarker.setIcon(icon);
 
-                middleMarker.off('moveend');
+                middleMarker.off("moveend");
             });
 
             this._addMarker(middleMarker, leftM, rightM);
@@ -291,8 +293,8 @@ Edit.Line = Edit.extend({
     // adds a new marker from a middlemarker
     _addMarker(newM, leftM, rightM) {
         // first, make this middlemarker a regular marker
-        newM.off('movestart');
-        newM.off('click');
+        newM.off("movestart");
+        newM.off("click");
 
         // now, create the polygon coordinate point for that marker
         // and push into marker array
@@ -301,7 +303,7 @@ Edit.Line = Edit.extend({
         const coords = this._layer._latlngs;
 
         // the index path to the marker inside the multidimensional marker array
-        const { indexPath, index, parentPath } = this.findDeepMarkerIndex(this._markers, rightM);
+        const {indexPath, index, parentPath} = this.findDeepMarkerIndex(this._markers, rightM);
 
         // define the coordsRing that is edited
         const coordsRing = indexPath.length > 1 ? get(coords, parentPath) : coords;
@@ -325,7 +327,7 @@ Edit.Line = Edit.extend({
         // fire edit event
         this._fireEdit();
 
-        this._layer.fire('pm:vertexadded', {
+        this._layer.fire("pm:vertexadded", {
             layer: this._layer,
             marker: newM,
             indexPath,
@@ -352,7 +354,7 @@ Edit.Line = Edit.extend({
         const coords = this._layer.getLatLngs();
 
         // the index path to the marker inside the multidimensional marker array
-        const { indexPath, index, parentPath } = this.findDeepMarkerIndex(this._markers, marker);
+        const {indexPath, index, parentPath} = this.findDeepMarkerIndex(this._markers, marker);
 
         // only continue if this is NOT a middle marker (those can"t be deleted)
         if (!indexPath) {
@@ -411,7 +413,8 @@ Edit.Line = Edit.extend({
             // find neighbor marker-indexes
             rightMarkerIndex = (index + 1) % markerArr.length;
             leftMarkerIndex = (index + (markerArr.length - 1)) % markerArr.length;
-        } else {
+        }
+        else {
             // find neighbor marker-indexes
             leftMarkerIndex = index - 1 < 0 ? undefined : index - 1;
             rightMarkerIndex = index + 1 >= markerArr.length ? undefined : index + 1;
@@ -431,7 +434,7 @@ Edit.Line = Edit.extend({
         this._fireEdit();
 
         // fire vertex removal event
-        this._layer.fire('pm:vertexremoved', {
+        this._layer.fire("pm:vertexremoved", {
             layer: this._layer,
             marker,
             indexPath,
@@ -440,8 +443,8 @@ Edit.Line = Edit.extend({
     },
     isEmptyDeep(l) {
         // thanks for the function, Felix Heck
-        const flatten = list =>
-            list.filter(x => ![null, '', undefined].includes(x))
+        const flatten = (list) =>
+            list.filter((x) => ![null, "", undefined].includes(x))
                 .reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
 
         return !flatten(l).length;
@@ -450,7 +453,7 @@ Edit.Line = Edit.extend({
         // thanks for the function, Felix Heck
         let result;
 
-        const run = path => (v, i) => {
+        const run = (path) => (v, i) => {
             const iRes = path.concat(i);
 
             if (v._leaflet_id === marker._leaflet_id) {
@@ -482,7 +485,7 @@ Edit.Line = Edit.extend({
         const latlng = marker.getLatLng();
 
         // get indexPath of Marker
-        const { indexPath, index, parentPath } = this.findDeepMarkerIndex(this._markers, marker);
+        const {indexPath, index, parentPath} = this.findDeepMarkerIndex(this._markers, marker);
 
         // update coord
         const parent = indexPath.length > 1 ? get(coords, parentPath) : coords;
@@ -497,7 +500,7 @@ Edit.Line = Edit.extend({
         // dragged marker
         const marker = e.target;
 
-        const { indexPath, index, parentPath } = this.findDeepMarkerIndex(this._markers, marker);
+        const {indexPath, index, parentPath} = this.findDeepMarkerIndex(this._markers, marker);
 
         // only continue if this is NOT a middle marker
         if (!indexPath) {
@@ -539,7 +542,7 @@ Edit.Line = Edit.extend({
 
     _onMarkerDragEnd(e) {
         const marker = e.target;
-        const { indexPath } = this.findDeepMarkerIndex(this._markers, marker);
+        const {indexPath} = this.findDeepMarkerIndex(this._markers, marker);
 
         // if self intersection is not allowed but this edit caused a self intersection,
         // reset and cancel; do not fire events
@@ -556,7 +559,7 @@ Edit.Line = Edit.extend({
             return;
         }
 
-        this._layer.fire('pm:markerdragend', {
+        this._layer.fire("pm:markerdragend", {
             markerEvent: e,
             indexPath,
         });
@@ -566,9 +569,9 @@ Edit.Line = Edit.extend({
     },
     _onMarkerDragStart(e) {
         const marker = e.target;
-        const { indexPath } = this.findDeepMarkerIndex(this._markers, marker);
+        const {indexPath} = this.findDeepMarkerIndex(this._markers, marker);
 
-        this._layer.fire('pm:markerdragstart', {
+        this._layer.fire("pm:markerdragstart", {
             markerEvent: e,
             indexPath,
         });
@@ -583,7 +586,7 @@ Edit.Line = Edit.extend({
     _fireEdit() {
         // fire edit event
         this._layerEdited = true;
-        this._layer.fire('pm:edit');
+        this._layer.fire("pm:edit");
     },
 
     _calcMiddleLatLng(latlng1, latlng2) {
@@ -594,10 +597,8 @@ Edit.Line = Edit.extend({
         const p1 = map.project(latlng1);
         const p2 = map.project(latlng2);
 
-        const latlng = map.unproject(p1._add(p2)
+        return map.unproject(p1._add(p2)
             ._divideBy(2));
-
-        return latlng;
     },
     removeLastVertex(isDrawing) {
         let wasRemoved = false;
@@ -607,7 +608,7 @@ Edit.Line = Edit.extend({
             const markers = layer.pm._markers;
             if (markers.length > 0) {
                 const marker = markers[markers.length - 1];
-                this._removeMarker({ target: marker }, isDrawing);
+                this._removeMarker({target: marker}, isDrawing);
                 wasRemoved = true;
             }
             layer.pm.disable();
