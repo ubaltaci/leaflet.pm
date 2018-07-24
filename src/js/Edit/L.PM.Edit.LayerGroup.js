@@ -65,7 +65,7 @@ Edit.LayerGroup = L.Class.extend({
             "pm:markerdragstart",
             "pm:vertexadded",
             "pm:vertexremoved",
-            "pm:centerplaced",
+            "pm:centerplaced"
         ];
 
         // listen to the events of the layers in this group
@@ -78,6 +78,7 @@ Edit.LayerGroup = L.Class.extend({
     },
     _fireEvent(e) {
         this._layerGroup.fireEvent(e.type, e);
+        this._layerGroup.fireEvent("pm:historycreated", e);
     },
     toggleEdit(options) {
         this._options = options;
