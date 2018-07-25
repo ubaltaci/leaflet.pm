@@ -78,6 +78,7 @@ Edit.LayerGroup = L.Class.extend({
     },
     _fireEvent(e) {
         this._layerGroup.fireEvent(e.type, e);
+        e.name = e.type;
         this._layerGroup.fireEvent("pm:historycreated", e);
     },
     toggleEdit(options) {
