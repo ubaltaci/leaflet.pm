@@ -12,6 +12,10 @@ Draw.Poly = Draw.Line.extend({
             return;
         }
 
+        if (this._doesBoundryViolated) {
+            return;
+        }
+
         // get coordinates, create the leaflet shape and add it to the map
         const coords = this._layer.getLatLngs();
         if (event && event.type === "dblclick") {
@@ -40,7 +44,7 @@ Draw.Poly = Draw.Line.extend({
         // create the new marker
         const marker = new L.Marker(latlng, {
             draggable: false,
-            icon: L.divIcon({ className: "marker-icon" }),
+            icon: L.divIcon({className: "marker-icon"}),
         });
 
         // mark this marker as temporary

@@ -6,15 +6,15 @@ const DragMixin = {
         // add CSS class
         const el = this._layer._path ? this._layer._path : this._layer._renderer._container;
 
-        L.DomUtil.addClass(el, 'leaflet-pm-draggable');
+        L.DomUtil.addClass(el, "leaflet-pm-draggable");
 
         this._originalMapDragState = this._layer._map.dragging._enabled;
 
-        // can we reliably save the map's draggable state?
+        // can we reliably save the map"s draggable state?
         // (if the mouse up event happens outside the container, then the map can become undraggable)
         this._safeToCacheDragState = true;
 
-        this._layer.on('mousedown', this._dragMixinOnMouseDown, this);
+        this._layer.on("mousedown", this._dragMixinOnMouseDown, this);
     },
     _dragMixinOnMouseUp() {
         const el = this._layer._path ? this._layer._path : this._layer._renderer._container;
@@ -24,16 +24,16 @@ const DragMixin = {
             this._layer._map.dragging.enable();
         }
 
-        // if mouseup event fired, it's safe to cache the map draggable state on the next mouse down
+        // if mouseup event fired, it"s safe to cache the map draggable state on the next mouse down
         this._safeToCacheDragState = true;
 
         // clear up mousemove event
-        this._layer._map.off('mousemove', this._dragMixinOnMouseMove, this);
+        this._layer._map.off("mousemove", this._dragMixinOnMouseMove, this);
 
         // clear up mouseup event
-        this._layer.off('mouseup', this._dragMixinOnMouseUp, this);
+        this._layer.off("mouseup", this._dragMixinOnMouseUp, this);
 
-        // if no drag happened, don't do anything
+        // if no drag happened, don"t do anything
         if (!this._dragging) {
             return false;
         }
@@ -46,10 +46,10 @@ const DragMixin = {
         window.setTimeout(() => {
             // set state
             this._dragging = false;
-            L.DomUtil.removeClass(el, 'leaflet-pm-dragging');
+            L.DomUtil.removeClass(el, "leaflet-pm-dragging");
 
             // fire pm:dragend event
-            this._layer.fire('pm:dragend');
+            this._layer.fire("pm:dragend");
 
             // fire edit
             this._fireEdit();
@@ -63,7 +63,7 @@ const DragMixin = {
         if (!this._dragging) {
             // set state
             this._dragging = true;
-            L.DomUtil.addClass(el, 'leaflet-pm-dragging');
+            L.DomUtil.addClass(el, "leaflet-pm-dragging");
 
             // bring it to front to prevent drag interception
             this._layer.bringToFront();
@@ -77,7 +77,7 @@ const DragMixin = {
             this._markerGroup.clearLayers();
 
             // fire pm:dragstart event
-            this._layer.fire('pm:dragstart');
+            this._layer.fire("pm:dragstart");
         }
 
         this._onLayerDrag(e);
@@ -91,18 +91,18 @@ const DragMixin = {
         if (this._safeToCacheDragState) {
             this._originalMapDragState = this._layer._map.dragging._enabled;
 
-            // don't cache the state again until another mouse up is registered
+            // don"t cache the state again until another mouse up is registered
             this._safeToCacheDragState = false;
         }
 
         // save for delta calculation
         this._tempDragCoord = e.latlng;
 
-        this._layer.on('mouseup', this._dragMixinOnMouseUp, this);
+        this._layer.on("mouseup", this._dragMixinOnMouseUp, this);
 
         // listen to mousemove on map (instead of polygon),
         // otherwise fast mouse movements stop the drag
-        this._layer._map.on('mousemove', this._dragMixinOnMouseMove, this);
+        this._layer._map.on("mousemove", this._dragMixinOnMouseMove, this);
     },
     dragging() {
         return this._dragging;
@@ -110,7 +110,7 @@ const DragMixin = {
 
     _onLayerDrag(e) {
         // latLng of mouse event
-        const { latlng } = e;
+        const {latlng} = e;
 
         // delta coords (how far was dragged)
         const deltaLatLng = {
@@ -144,7 +144,7 @@ const DragMixin = {
         this._tempDragCoord = latlng;
 
         // fire pm:dragstart event
-        this._layer.fire('pm:drag');
+        this._layer.fire("pm:drag");
     },
 };
 

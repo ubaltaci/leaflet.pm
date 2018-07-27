@@ -1,12 +1,15 @@
-import kinks from '@turf/kinks';
-import Draw from './L.PM.Draw';
+import kinks from "@turf/kinks";
+import booleanContains from "@turf/boolean-contains";
+import Draw from "./L.PM.Draw";
 
 Draw.Line = Draw.extend({
     initialize(map) {
         this._map = map;
-        this._shape = 'Line';
-        this.toolbarButtonName = 'drawPolyline';
+        this._shape = "Line";
+        this.toolbarButtonName = "drawPolyline";
+
         this._doesSelfIntersect = false;
+        this._doesBoundryViolated = false;
     },
     enable(options) {
         L.Util.setOptions(this, options);
@@ -14,7 +17,7 @@ Draw.Line = Draw.extend({
         // fallback option for finishOnDoubleClick
         // TODO: remove in a later release
         if (this.options.finishOnDoubleClick && !this.options.finishOn) {
-            this.options.finishOn = 'dblclick';
+            this.options.finishOn = "dblclick";
         }
 
         // enable draw mode
@@ -25,7 +28,7 @@ Draw.Line = Draw.extend({
         this._layerGroup._pmTempLayer = true;
         this._layerGroup.addTo(this._map);
 
-        // this is the polyLine that'll make up the polygon
+        // this is the polyLine that"ll make up the polygon
         this._layer = L.polyline([], this.options.templineStyle);
         this._layer._pmTempLayer = true;
         this._layerGroup.addLayer(this._layer);
@@ -37,21 +40,21 @@ Draw.Line = Draw.extend({
 
         // this is the hintmarker on the mouse cursor
         this._hintMarker = L.marker(this._map.getCenter(), {
-            icon: L.divIcon({ className: 'marker-icon cursor-marker' }),
+            icon: L.divIcon({className: "marker-icon cursor-marker"}),
         });
         this._hintMarker._pmTempLayer = true;
         this._layerGroup.addLayer(this._hintMarker);
 
         // show the hintmarker if the option is set
         if (this.options.cursorMarker) {
-            L.DomUtil.addClass(this._hintMarker._icon, 'visible');
+            L.DomUtil.addClass(this._hintMarker._icon, "visible");
         }
 
         // change map cursor
-        this._map._container.style.cursor = 'crosshair';
+        this._map._container.style.cursor = "crosshair";
 
         // create a polygon-point on click
-        this._map.on('click', this._createVertex, this);
+        this._map.on("click", this._createVertex, this);
 
         // finish on layer event
         // #http://leafletjs.com/reference-1.2.0.html#interactive-layer-click
@@ -60,7 +63,7 @@ Draw.Line = Draw.extend({
         }
 
         // prevent zoom on double click if finishOn is === dblclick
-        if (this.options.finishOn === 'dblclick') {
+        if (this.options.finishOn === "dblclick") {
             this.tempMapDoubleClickZoomState = this._map.doubleClickZoom._enabled;
 
             if (this.tempMapDoubleClickZoomState) {
@@ -69,13 +72,13 @@ Draw.Line = Draw.extend({
         }
 
         // sync hint marker with mouse cursor
-        this._map.on('mousemove', this._syncHintMarker, this);
+        this._map.on("mousemove", this._syncHintMarker, this);
 
         // sync the hintline with hint marker
-        this._hintMarker.on('move', this._syncHintLine, this);
+        this._hintMarker.on("move", this._syncHintLine, this);
 
         // fire drawstart event
-        this._map.fire('pm:drawstart', { shape: this._shape, workingLayer: this._layer });
+        this._map.fire("pm:drawstart", {shape: this._shape, workingLayer: this._layer});
 
         // toggle the draw button of the Toolbar in case drawing mode got enabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, true);
@@ -87,7 +90,7 @@ Draw.Line = Draw.extend({
     disable() {
         // disable draw mode
 
-        // cancel, if drawing mode isn't even enabled
+        // cancel, if drawing mode isn"t even enabled
         if (!this._enabled) {
             return;
         }
@@ -95,11 +98,11 @@ Draw.Line = Draw.extend({
         this._enabled = false;
 
         // reset cursor
-        this._map._container.style.cursor = '';
+        this._map._container.style.cursor = "";
 
         // unbind listeners
-        this._map.off('click', this._createVertex, this);
-        this._map.off('mousemove', this._syncHintMarker, this);
+        this._map.off("click", this._createVertex, this);
+        this._map.off("mousemove", this._syncHintMarker, this);
         if (this.options.finishOn) {
             this._map.off(this.options.finishOn, this._finishShape, this);
         }
@@ -112,7 +115,7 @@ Draw.Line = Draw.extend({
         this._map.removeLayer(this._layerGroup);
 
         // fire drawend event
-        this._map.fire('pm:drawend', { shape: this._shape });
+        this._map.fire("pm:drawend", {shape: this._shape});
 
         // toggle the draw button of the Toolbar in case drawing mode got disabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, false);
@@ -128,15 +131,18 @@ Draw.Line = Draw.extend({
     toggle(options) {
         if (this.enabled()) {
             this.disable();
-        } else {
+        }
+        else {
             this.enable(options);
         }
     },
+
     hasSelfIntersection() {
         // check for self intersection of the layer and return true/false
         const selfIntersection = kinks(this._layer.toGeoJSON(15));
         return selfIntersection.features.length > 0;
     },
+
     _syncHintLine() {
         const polyPoints = this._layer.getLatLngs();
 
@@ -150,6 +156,7 @@ Draw.Line = Draw.extend({
             this._hintline.setLatLngs([]);
         }
     },
+
     _syncHintMarker(e) {
         // move the cursor marker
         this._hintMarker.setLatLng(e.latlng);
@@ -161,44 +168,69 @@ Draw.Line = Draw.extend({
             this._handleSnapping(fakeDragEvent);
         }
 
-        // if self-intersection is forbidden, handle it
-        if (!this.options.allowSelfIntersection) {
-            this._handleSelfIntersection();
-        }
+        this._checkRules();
     },
-    _handleSelfIntersection() {
-        // ok we need to check the self intersection here
-        // problem: during draw, the marker on the cursor is not yet part
-        // of the layer. So we need to clone the layer, add the
-        // potential new vertex (cursor markers latlngs) and check the self
-        // intersection on the clone. Phew... - let's do it 💪
+
+    _checkRules() {
 
         // clone layer (polyline is enough, even when it's a polygon)
-        const clone = L.polyline(this._layer.getLatLngs());
+        const drawnVertexCount = this._layer.getLatLngs().length;
 
-        // add the vertex
-        clone.addLatLng(this._hintMarker.getLatLng());
+        let clone;
 
-        // check the self intersection
-        const selfIntersection = kinks(clone.toGeoJSON(15));
-        this._doesSelfIntersect = selfIntersection.features.length > 0;
+        if (drawnVertexCount > 0) { // Now this can become line with added hintMarker
+            clone = L.polyline(this._layer.getLatLngs());
+            // add the vertex
+            clone.addLatLng(this._hintMarker.getLatLng());
+        }
+        else {
+            // create point we have only 1 vertices
+            clone = L.marker(this._hintMarker.getLatLng());
+        }
 
-        // change the style based on self intersection
-        if (this._doesSelfIntersect) {
+
+        // RULE #1: self-intersection
+        if (!this.options.allowSelfIntersection && drawnVertexCount > 0) {
+
+            // Self intersection can be exist at least 1 point has drawn before.
+            const selfIntersection = kinks(clone.toGeoJSON(15));
+            this._doesSelfIntersect = selfIntersection.features.length > 0;
+
+        }
+
+        // RULE #2: boundry
+        if (this.options.boundry) {
+
+            this._doesBoundryViolated = !booleanContains(this.options.boundry, clone.toGeoJSON(15));
+        }
+
+        // change the style if any of rules violated
+        if (this._doesSelfIntersect || this._doesBoundryViolated) {
+
             this._hintline.setStyle({
-                color: 'red',
+                color: "red",
             });
-        } else {
+            L.DomUtil.addClass(this._hintMarker._icon, "marker-error-icon");
+        }
+        else {
+            L.DomUtil.removeClass(this._hintMarker._icon, "marker-error-icon");
             this._hintline.setStyle(this.options.hintlineStyle);
         }
+
     },
     _createVertex(e) {
+
         if (!this.options.allowSelfIntersection && this._doesSelfIntersect) {
             return;
         }
 
-        // assign the coordinate of the click to the hintMarker, that's necessary for
-        // mobile where the marker can't follow a cursor
+        // if boundry is set and violated, do not finish the shape!
+        if (this.options.boundry && this._doesBoundryViolated) {
+            return;
+        }
+
+        // assign the coordinate of the click to the hintMarker, that"s necessary for
+        // mobile where the marker can"t follow a cursor
         if (!this._hintMarker._snapped) {
             this._hintMarker.setLatLng(e.latlng);
         }
@@ -211,9 +243,9 @@ Draw.Line = Draw.extend({
             // yes? finish the polygon
             this._finishShape(e);
 
-            // "why?", you ask? Because this happens when we snap the last vertex to the first one
+            // why?, you ask? Because this happens when we snap the last vertex to the first one
             // and then click without hitting the last marker. Click happens on the map
-            // in 99% of cases it's because the user wants to finish the polygon. So...
+            // in 99% of cases it"s because the user wants to finish the polygon. So...
             return;
         }
 
@@ -225,7 +257,7 @@ Draw.Line = Draw.extend({
 
         this._hintline.setLatLngs([latlng, latlng]);
 
-        this._layer.fire('pm:vertexadded', {
+        this._layer.fire("pm:vertexadded", {
             shape: this._shape,
             workingLayer: this._layer,
             marker: newMarker,
@@ -238,6 +270,11 @@ Draw.Line = Draw.extend({
             return;
         }
 
+        // if boundry is set and violated, do not finish the shape!
+        if (this.options.boundry && this._doesBoundryViolated) {
+            return;
+        }
+
         // get coordinates, create the leaflet shape and add it to the map
         const coords = this._layer.getLatLngs();
         const polylineLayer = L.polyline(coords, this.options.pathOptions).addTo(this._map);
@@ -246,7 +283,7 @@ Draw.Line = Draw.extend({
         this.disable();
 
         // fire the pm:create event and pass shape and layer
-        this._map.fire('pm:create', {
+        this._map.fire("pm:create", {
             shape: this._shape,
             layer: polylineLayer,
         });
@@ -259,7 +296,7 @@ Draw.Line = Draw.extend({
         // create the new marker
         const marker = new L.Marker(latlng, {
             draggable: false,
-            icon: L.divIcon({ className: 'marker-icon' }),
+            icon: L.divIcon({className: "marker-icon"}),
         });
         marker._pmTempLayer = true;
 
@@ -267,7 +304,7 @@ Draw.Line = Draw.extend({
         this._layerGroup.addLayer(marker);
 
         // a click on any marker finishes this shape
-        marker.on('click', this._finishShape, this);
+        marker.on("click", this._finishShape, this);
 
         return marker;
     },

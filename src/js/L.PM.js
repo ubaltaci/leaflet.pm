@@ -5,30 +5,30 @@
  * Github Repo: https://github.com/codeofsumit/leaflet.pm
  */
 
-import './polyfills';
-import { version } from '../../package.json';
+import "./polyfills";
+import {version} from "../../package.json";
 
-import Map from './L.PM.Map';
-import Toolbar from './Toolbar/L.PM.Toolbar';
+import Map from "./L.PM.Map";
+import Toolbar from "./Toolbar/L.PM.Toolbar";
 
-import Draw from './Draw/L.PM.Draw';
-import './Draw/L.PM.Draw.Marker';
-import './Draw/L.PM.Draw.Line';
-import './Draw/L.PM.Draw.Poly';
-import './Draw/L.PM.Draw.Rectangle';
-import './Draw/L.PM.Draw.Circle';
-import './Draw/L.PM.Draw.Cut';
+import Draw from "./Draw/L.PM.Draw";
+import "./Draw/L.PM.Draw.Marker";
+import "./Draw/L.PM.Draw.Line";
+import "./Draw/L.PM.Draw.Poly";
+import "./Draw/L.PM.Draw.Rectangle";
+import "./Draw/L.PM.Draw.Circle";
+import "./Draw/L.PM.Draw.Cut";
 
-import Edit from './Edit/L.PM.Edit';
-import './Edit/L.PM.Edit.LayerGroup';
-import './Edit/L.PM.Edit.Marker';
-import './Edit/L.PM.Edit.Line';
-import './Edit/L.PM.Edit.Poly';
-import './Edit/L.PM.Edit.Rectangle';
-import './Edit/L.PM.Edit.Circle';
+import Edit from "./Edit/L.PM.Edit";
+import "./Edit/L.PM.Edit.LayerGroup";
+import "./Edit/L.PM.Edit.Marker";
+import "./Edit/L.PM.Edit.Line";
+import "./Edit/L.PM.Edit.Poly";
+import "./Edit/L.PM.Edit.Rectangle";
+import "./Edit/L.PM.Edit.Circle";
 
-import '../css/layers.css';
-import '../css/controls.css';
+import "../css/layers.css";
+import "../css/controls.css";
 
 L.PM = L.PM || {
     Map,

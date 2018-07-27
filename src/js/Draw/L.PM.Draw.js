@@ -1,4 +1,4 @@
-import SnapMixin from '../Mixins/Snapping';
+import SnapMixin from "../Mixins/Snapping";
 
 const Draw = L.Class.extend({
     includes: [SnapMixin],
@@ -11,7 +11,7 @@ const Draw = L.Class.extend({
         allowSelfIntersection: true,
         templineStyle: {},
         hintlineStyle: {
-            dashArray: '5,5',
+            dashArray: "5,5",
         },
         markerStyle: {
             draggable: true,
@@ -22,7 +22,7 @@ const Draw = L.Class.extend({
         this._map = map;
 
         // define all possible shapes that can be drawn
-        this.shapes = ['Marker', 'Line', 'Poly', 'Rectangle', 'Circle', 'Cut'];
+        this.shapes = ["Marker", "Line", "Poly", "Rectangle", "Circle", "Cut"];
 
         // initiate drawing class for our shapes
         this.shapes.forEach((shape) => {
@@ -38,7 +38,7 @@ const Draw = L.Class.extend({
     },
     enable(shape, options) {
         if (!shape) {
-            throw new Error(`Error: Please pass a shape as a parameter. Possible shapes are: ${this.getShapes().join(',')}`);
+            throw new Error(`Error: Please pass a shape as a parameter. Possible shapes are: ${this.getShapes().join(",")}`);
         }
 
         // disable drawing for all shapes
@@ -49,7 +49,7 @@ const Draw = L.Class.extend({
     },
     disable() {
         // there can only be one drawing mode active at a time on a map
-        // so it doesn't matter which one should be disabled.
+        // so it doesn"t matter which one should be disabled.
         // just disable all of them
         this.shapes.forEach((shape) => {
             this[shape].disable();
@@ -63,7 +63,7 @@ const Draw = L.Class.extend({
     },
     removeLastVertex(shape) {
         if (!shape) {
-            throw new Error(`Error: Please pass a shape as a parameter. Possible shapes are: ${this.getShapes().join(',')}`);
+            throw new Error(`Error: Please pass a shape as a parameter. Possible shapes are: ${this.getShapes().join(",")}`);
         }
 
         if (this[shape] && this[shape].removeLastVertex) {

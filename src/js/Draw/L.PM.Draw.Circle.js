@@ -1,10 +1,10 @@
-import Draw from './L.PM.Draw';
+import Draw from "./L.PM.Draw";
 
 Draw.Circle = Draw.extend({
     initialize(map) {
         this._map = map;
-        this._shape = 'Circle';
-        this.toolbarButtonName = 'drawCircle';
+        this._shape = "Circle";
+        this.toolbarButtonName = "drawCircle";
     },
     enable(options) {
         // TODO: Think about if these options could be passed globally for all
@@ -27,7 +27,7 @@ Draw.Circle = Draw.extend({
 
         // this is the marker in the center of the circle
         this._centerMarker = L.marker([0, 0], {
-            icon: L.divIcon({ className: 'marker-icon' }),
+            icon: L.divIcon({className: "marker-icon"}),
             draggable: false,
             zIndexOffset: 100,
         });
@@ -36,14 +36,14 @@ Draw.Circle = Draw.extend({
 
         // this is the hintmarker on the mouse cursor
         this._hintMarker = L.marker([0, 0], {
-            icon: L.divIcon({ className: 'marker-icon cursor-marker' }),
+            icon: L.divIcon({className: "marker-icon cursor-marker"}),
         });
         this._hintMarker._pmTempLayer = true;
         this._layerGroup.addLayer(this._hintMarker);
 
         // show the hintmarker if the option is set
         if (this.options.cursorMarker) {
-            L.DomUtil.addClass(this._hintMarker._icon, 'visible');
+            L.DomUtil.addClass(this._hintMarker._icon, "visible");
         }
 
         // this is the hintline from the hint marker to the center marker
@@ -52,16 +52,16 @@ Draw.Circle = Draw.extend({
         this._layerGroup.addLayer(this._hintline);
 
         // change map cursor
-        this._map._container.style.cursor = 'crosshair';
+        this._map._container.style.cursor = "crosshair";
 
         // create a polygon-point on click
-        this._map.on('click', this._placeCenterMarker, this);
+        this._map.on("click", this._placeCenterMarker, this);
 
         // sync hint marker with mouse cursor
-        this._map.on('mousemove', this._syncHintMarker, this);
+        this._map.on("mousemove", this._syncHintMarker, this);
 
         // fire drawstart event
-        this._map.fire('pm:drawstart', { shape: this._shape, workingLayer: this._layer });
+        this._map.fire("pm:drawstart", {shape: this._shape, workingLayer: this._layer});
 
         // toggle the draw button of the Toolbar in case drawing mode got enabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, true);
@@ -73,7 +73,7 @@ Draw.Circle = Draw.extend({
     disable() {
         // disable drawing mode
 
-        // cancel, if drawing mode isn't event enabled
+        // cancel, if drawing mode isn"t event enabled
         if (!this._enabled) {
             return;
         }
@@ -81,18 +81,18 @@ Draw.Circle = Draw.extend({
         this._enabled = false;
 
         // reset cursor
-        this._map._container.style.cursor = '';
+        this._map._container.style.cursor = "";
 
         // unbind listeners
-        this._map.off('click', this._finishShape, this);
-        this._map.off('click', this._placeCenterMarker, this);
-        this._map.off('mousemove', this._syncHintMarker, this);
+        this._map.off("click", this._finishShape, this);
+        this._map.off("click", this._placeCenterMarker, this);
+        this._map.off("mousemove", this._syncHintMarker, this);
 
         // remove helping layers
         this._map.removeLayer(this._layerGroup);
 
         // fire drawend event
-        this._map.fire('pm:drawend', { shape: this._shape });
+        this._map.fire("pm:drawend", {shape: this._shape});
 
         // toggle the draw button of the Toolbar in case drawing mode got disabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, false);
@@ -108,7 +108,8 @@ Draw.Circle = Draw.extend({
     toggle(options) {
         if (this.enabled()) {
             this.disable();
-        } else {
+        }
+        else {
             this.enable(options);
         }
     },
@@ -138,8 +139,8 @@ Draw.Circle = Draw.extend({
         }
     },
     _placeCenterMarker(e) {
-        // assign the coordinate of the click to the hintMarker, that's necessary for
-        // mobile where the marker can't follow a cursor
+        // assign the coordinate of the click to the hintMarker, that"s necessary for
+        // mobile where the marker can"t follow a cursor
         if (!this._hintMarker._snapped) {
             this._hintMarker.setLatLng(e.latlng);
         }
@@ -149,8 +150,8 @@ Draw.Circle = Draw.extend({
 
         this._centerMarker.setLatLng(latlng);
 
-        this._map.off('click', this._placeCenterMarker, this);
-        this._map.on('click', this._finishShape, this);
+        this._map.off("click", this._placeCenterMarker, this);
+        this._map.on("click", this._finishShape, this);
 
         this._placeCircleCenter();
     },
@@ -161,10 +162,10 @@ Draw.Circle = Draw.extend({
             this._layer.setLatLng(latlng);
 
             // sync the hintline with hint marker
-            this._hintMarker.on('move', this._syncHintLine, this);
-            this._hintMarker.on('move', this._syncCircleRadius, this);
+            this._hintMarker.on("move", this._syncHintLine, this);
+            this._hintMarker.on("move", this._syncCircleRadius, this);
 
-            this._layer.fire('pm:centerplaced', {
+            this._layer.fire("pm:centerplaced", {
                 shape: this._shape,
                 workingLayer: this._layer,
                 latlng,
@@ -176,7 +177,7 @@ Draw.Circle = Draw.extend({
         const center = this._centerMarker.getLatLng();
         const cursor = e.latlng;
         const radius = center.distanceTo(cursor);
-        const options = Object.assign({}, this.options.pathOptions, { radius });
+        const options = Object.assign({}, this.options.pathOptions, {radius});
 
         // create the final circle layer
         const circleLayer = L.circle(center, options).addTo(this._map);
@@ -185,7 +186,7 @@ Draw.Circle = Draw.extend({
         this.disable();
 
         // fire the pm:create event and pass shape and layer
-        this._map.fire('pm:create', {
+        this._map.fire("pm:create", {
             shape: this._shape,
             layer: circleLayer,
         });
@@ -194,7 +195,7 @@ Draw.Circle = Draw.extend({
         // create the new marker
         const marker = new L.Marker(latlng, {
             draggable: false,
-            icon: L.divIcon({ className: 'marker-icon' }),
+            icon: L.divIcon({className: "marker-icon"}),
         });
         marker._pmTempLayer = true;
 

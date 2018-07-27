@@ -4,8 +4,8 @@ const SnapMixin = {
 
         this._assignEvents(this._markers);
 
-        this._layer.off('pm:dragstart', this._unsnap, this);
-        this._layer.on('pm:dragstart', this._unsnap, this);
+        this._layer.off("pm:dragstart", this._unsnap, this);
+        this._layer.on("pm:dragstart", this._unsnap, this);
     },
     _assignEvents(markerArr) {
         // loop through marker array and assign events to the markers
@@ -17,12 +17,12 @@ const SnapMixin = {
             }
 
             // add handleSnapping event on drag
-            marker.off('drag', this._handleSnapping, this);
-            marker.on('drag', this._handleSnapping, this);
+            marker.off("drag", this._handleSnapping, this);
+            marker.on("drag", this._handleSnapping, this);
 
             // cleanup event on dragend
-            marker.off('dragend', this._cleanupSnapping, this);
-            marker.on('dragend', this._cleanupSnapping, this);
+            marker.off("dragend", this._cleanupSnapping, this);
+            marker.on("dragend", this._cleanupSnapping, this);
         });
     },
     _unsnap() {
@@ -31,11 +31,11 @@ const SnapMixin = {
     },
     _cleanupSnapping() {
         // delete it, we need to refresh this with each start of a drag because
-        // meanwhile, new layers could've been added to the map
+        // meanwhile, new layers could"ve been added to the map
         delete this._snapList;
 
         // remove map event
-        this._map.off('pm:remove', this._handleSnapLayerRemoval, this);
+        this._map.off("pm:remove", this._handleSnapLayerRemoval, this);
 
         if (this.debugIndicatorLines) {
             this.debugIndicatorLines.forEach((line) => {
@@ -56,8 +56,8 @@ const SnapMixin = {
         }
 
         // create a list of polygons that the marker could snap to
-        // this isn't inside a movestart/dragstart callback because middlemarkers are initialized
-        // after dragstart/movestart so it wouldn't fire for them
+        // this isn"t inside a movestart/dragstart callback because middlemarkers are initialized
+        // after dragstart/movestart so it wouldn"t fire for them
         if (this._snapList === undefined) {
             this._createSnapList(e);
         }
@@ -69,7 +69,7 @@ const SnapMixin = {
 
         const marker = e.target;
 
-        // get the closest layer, it's closest latlng, segment and the distance
+        // get the closest layer, it"s closest latlng, segment and the distance
         const closestLayer = this._calcClosestLayer(marker.getLatLng(), this._snapList);
 
         const isMarker = closestLayer.layer instanceof L.Marker || closestLayer.layer instanceof L.CircleMarker;
@@ -102,8 +102,8 @@ const SnapMixin = {
 
             const triggerSnap = () => {
                 this._snapLatLng = snapLatLng;
-                marker.fire('pm:snap', eventInfo);
-                this._layer.fire('pm:snap', eventInfo);
+                marker.fire("pm:snap", eventInfo);
+                this._layer.fire("pm:snap", eventInfo);
             };
 
             // check if the snapping position differs from the last snap
@@ -124,15 +124,15 @@ const SnapMixin = {
             marker._snapped = false;
 
             // and fire unsnap event
-            eventInfo.marker.fire('pm:unsnap', eventInfo);
-            this._layer.fire('pm:unsnap', eventInfo);
+            eventInfo.marker.fire("pm:unsnap", eventInfo);
+            this._layer.fire("pm:unsnap", eventInfo);
         }
 
         return true;
     },
 
     // we got the point we want to snap to (C), but we need to check if a coord of the polygon
-    // receives priority over C as the snapping point. Let's check this here
+    // receives priority over C as the snapping point. Let"s check this here
     _checkPrioritiySnapping(closestLayer) {
         const map = this._map;
 
@@ -141,7 +141,7 @@ const SnapMixin = {
         const B = closestLayer.segment[1];
 
         // C is the point we would snap to on the segment.
-        // The closest point on the closest segment of the closest polygon to P. That's right.
+        // The closest point on the closest segment of the closest polygon to P. That"s right.
         const C = closestLayer.latlng;
 
         // distances from A to C and B to C to check which one is closer to C
@@ -177,8 +177,8 @@ const SnapMixin = {
         const debugIndicatorLines = [];
         const map = this._map;
 
-        map.off('pm:remove', this._handleSnapLayerRemoval, this);
-        map.on('pm:remove', this._handleSnapLayerRemoval, this);
+        map.off("pm:remove", this._handleSnapLayerRemoval, this);
+        map.on("pm:remove", this._handleSnapLayerRemoval, this);
 
         // find all layers that are or inherit from Polylines... and markers that are not
         // temporary markers of polygon-edits
@@ -187,7 +187,7 @@ const SnapMixin = {
                 layers.push(layer);
 
                 // this is for debugging
-                const debugLine = L.polyline([], { color: 'red', pmIgnore: true });
+                const debugLine = L.polyline([], { color: "red", pmIgnore: true });
                 debugIndicatorLines.push(debugLine);
 
                 // uncomment 👇 this line to show helper lines for debugging
@@ -201,7 +201,7 @@ const SnapMixin = {
         // also remove everything that has no coordinates yet
         layers = layers.filter(layer => layer._latlng || (layer._latlngs && layer._latlngs.length > 0));
 
-        // finally remove everything that's leaflet.pm specific temporary stuff
+        // finally remove everything that"s leaflet.pm specific temporary stuff
         layers = layers.filter(layer => !layer._pmTempLayer);
 
         // save snaplist from layers and the other snap layers added from other classes/scripts
@@ -222,17 +222,17 @@ const SnapMixin = {
             // find the closest latlng, segment and the distance of this layer to the dragged marker latlng
             const results = this._calcLayerDistances(latlng, layer);
 
-            // show indicator lines, it's for debugging
+            // show indicator lines, it"s for debugging
             this.debugIndicatorLines[index].setLatLngs([latlng, results.latlng]);
 
-            // save the info if it doesn't exist or if the distance is smaller than the previous one
+            // save the info if it doesn"t exist or if the distance is smaller than the previous one
             if (closestLayer.distance === undefined || results.distance < closestLayer.distance) {
                 closestLayer = results;
                 closestLayer.layer = layer;
             }
         });
 
-        // return the closest layer and it's data
+        // return the closest layer and it"s data
         // if there is no closest layer, return undefined
         return closestLayer;
     },

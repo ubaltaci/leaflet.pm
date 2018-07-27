@@ -4,9 +4,9 @@ const Map = L.Class.extend({
         this.Draw = new L.PM.Draw(map);
         this.Toolbar = new L.PM.Toolbar(map);
 
-        this.map.on('layerremove', (e) => {
+        this.map.on("layerremove", (e) => {
             if (e.layer.pm && !e.layer._pmTempLayer) {
-                this.map.fire('pm:remove', e);
+                this.map.fire("pm:remove", e);
             }
         });
 
@@ -24,10 +24,10 @@ const Map = L.Class.extend({
     controlsVisible() {
         return this.Toolbar.isVisible;
     },
-    enableDraw(shape = 'Poly', options) {
+    enableDraw(shape = "Poly", options) {
         this.Draw.enable(shape, options);
     },
-    disableDraw(shape = 'Poly') {
+    disableDraw(shape = "Poly") {
         this.Draw.disable(shape);
     },
     removeLastVertex(shape) {
@@ -47,19 +47,19 @@ const Map = L.Class.extend({
         if (this.globalRemovalEnabled()) {
             this._globalRemovalMode = false;
             this.map.eachLayer((layer) => {
-                layer.off('click', this.removeLayer);
+                layer.off("click", this.removeLayer);
             });
         } else {
             this._globalRemovalMode = true;
             this.map.eachLayer((layer) => {
                 if (layer.pm && !(layer.pm.options && layer.pm.options.preventMarkerRemoval)) {
-                    layer.on('click', this.removeLayer);
+                    layer.on("click", this.removeLayer);
                 }
             });
         }
 
         // toogle the button in the toolbar
-        this.Toolbar.toggleButton('deleteLayer', this._globalRemovalMode);
+        this.Toolbar.toggleButton("deleteLayer", this._globalRemovalMode);
     },
     globalRemovalEnabled() {
         return this._globalRemovalMode;
@@ -76,10 +76,10 @@ const Map = L.Class.extend({
             }
         });
 
-        // filter out layers that don't have the leaflet.pm instance
+        // filter out layers that don"t have the leaflet.pm instance
         layers = layers.filter(layer => !!layer.pm);
 
-        // filter out everything that's leaflet.pm specific temporary stuff
+        // filter out everything that"s leaflet.pm specific temporary stuff
         layers = layers.filter(layer => !layer._pmTempLayer);
 
         this._globalEditMode = true;
@@ -89,7 +89,7 @@ const Map = L.Class.extend({
         });
 
         // toggle the button in the toolbar
-        this.Toolbar.toggleButton('editPolygon', this._globalEditMode);
+        this.Toolbar.toggleButton("editPolygon", this._globalEditMode);
 
         // fire event
         this._fireEditModeEvent(true);
@@ -103,10 +103,10 @@ const Map = L.Class.extend({
             }
         });
 
-        // filter out layers that don't have the leaflet.pm instance
+        // filter out layers that don"t have the leaflet.pm instance
         layers = layers.filter(layer => !!layer.pm);
 
-        // filter out everything that's leaflet.pm specific temporary stuff
+        // filter out everything that"s leaflet.pm specific temporary stuff
         layers = layers.filter(layer => !layer._pmTempLayer);
 
         this._globalEditMode = false;
@@ -116,19 +116,19 @@ const Map = L.Class.extend({
         });
 
         // toggle the button in the toolbar
-        this.Toolbar.toggleButton('editPolygon', this._globalEditMode);
+        this.Toolbar.toggleButton("editPolygon", this._globalEditMode);
 
         // fire event
         this._fireEditModeEvent(false);
     },
     _fireEditModeEvent(enabled) {
-        this.map.fire('pm:globaleditmodetoggled', {
+        this.map.fire("pm:globaleditmodetoggled", {
             enabled,
             map: this.map,
         });
     },
     toggleGlobalEditMode(options) {
-        // console.log('toggle global edit mode', options);
+        // console.log("toggle global edit mode", options);
         if (this.globalEditEnabled()) {
             // disable
             this.disableGlobalEditMode();

@@ -10,6 +10,11 @@
   transition: opacity ease 0.3s;
 }
 
+.marker-error-icon,
+.marker-error-icon:focus {
+  border: 1px solid red;
+}
+
 .marker-icon-middle,
 .marker-icon-middle:focus {
   opacity: 0.7;
