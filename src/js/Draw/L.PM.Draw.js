@@ -1,6 +1,7 @@
 import SnapMixin from "../Mixins/Snapping";
 
 const Draw = L.Class.extend({
+
     includes: [SnapMixin],
     options: {
         snappable: true,
@@ -47,6 +48,12 @@ const Draw = L.Class.extend({
         // enable draw for a shape
         this[shape].enable(options);
     },
+    disableDraw() {
+
+        this.shapes.forEach((shape) => {
+            this[shape].disableDraw();
+        });
+    },
     disable() {
         // there can only be one drawing mode active at a time on a map
         // so it doesn"t matter which one should be disabled.
@@ -55,21 +62,28 @@ const Draw = L.Class.extend({
             this[shape].disable();
         });
     },
+    cancelDraw() {
+        // there can only be one drawing mode active at a time on a map
+        // so it doesn"t matter which one should be disabled.
+        // just disable all of them
+        this.shapes.forEach((shape) => {
+            this[shape].cancelDraw();
+        });
+    },
+    removeLastVertex() {
+        // there can only be one drawing mode active at a time on a map
+        // so it doesn"t matter which one should be disabled.
+        // just disable all of them
+        this.shapes.forEach((shape) => {
+            this[shape].removeLastVertex();
+        });
+    },
     addControls() {
         // add control buttons for our shapes
         this.shapes.forEach((shape) => {
             this[shape].addButton();
         });
-    },
-    removeLastVertex(shape) {
-        if (!shape) {
-            throw new Error(`Error: Please pass a shape as a parameter. Possible shapes are: ${this.getShapes().join(",")}`);
-        }
-
-        if (this[shape] && this[shape].removeLastVertex) {
-            this[shape].removeLastVertex();
-        }
-    },
+    }
 });
 
 export default Draw;

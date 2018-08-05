@@ -31,6 +31,7 @@ Draw.Poly = Draw.Line.extend({
         this._map.fire("pm:create", {
             shape: this._shape,
             layer: polygonLayer,
+            _id: this._id
         });
 
         // clean up snapping states

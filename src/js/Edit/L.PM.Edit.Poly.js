@@ -1,4 +1,4 @@
-import Edit from './L.PM.Edit';
+import Edit from "./L.PM.Edit";
 
 Edit.Poly = Edit.Line.extend({
     // this is a bit weird but... Polygons are completely supported by L.PM.Edit.Line now 😲.

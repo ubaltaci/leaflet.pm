@@ -1,12 +1,16 @@
 import Edit from "./L.PM.Edit";
 
-// LayerGroup doesn"t inherit from L.PM.Edit because it"s just calling L.PM.Edit.Poly
+// LayerGroup doesn't inherit from L.PM.Edit because it's just calling L.PM.Edit.Poly
 // (which inherits from L.PM.Edit) for each layer,
-// so it"s not really a parent class
+// so it's not really a parent class
 Edit.LayerGroup = L.Class.extend({
+
     initialize(layerGroup) {
         this._layerGroup = layerGroup;
         this._layers = this.findLayers();
+
+        this._isDragActive = false;
+        this._isMidVerticesActive = false;
 
         // init all layers of the group
         this._layers.forEach((layer) => this._initLayer(layer));
@@ -87,16 +91,44 @@ Edit.LayerGroup = L.Class.extend({
             layer.pm.toggleEdit(options);
         });
     },
+    getIsDragActive() {
+
+        return this._isDragActive;
+    },
     enableDrag() {
 
+        this._isDragActive = true;
         this._layers.forEach((layer) => {
             layer.pm.enableDrag();
         });
     },
     disableDrag() {
 
+        this._isDragActive = false;
         this._layers.forEach((layer) => {
             layer.pm.disableDrag();
+        });
+    },
+    getIsMidVerticesActive() {
+
+        return this._isMidVerticesActive;
+    },
+    enableMidVertices() {
+
+        this._isMidVerticesActive = true;
+        this._layers.forEach((layer) => {
+            if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                layer.pm.enableMidVertices();
+            }
+        });
+    },
+    disableMidVertices() {
+
+        this._isMidVerticesActive = false;
+        this._layers.forEach((layer) => {
+            if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                layer.pm.disableMidVertices();
+            }
         });
     },
     enable(options) {

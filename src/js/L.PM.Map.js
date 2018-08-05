@@ -27,11 +27,11 @@ const Map = L.Class.extend({
     enableDraw(shape = "Poly", options) {
         this.Draw.enable(shape, options);
     },
-    disableDraw(shape = "Poly") {
-        this.Draw.disable(shape);
+    disableDraw() {
+        this.Draw.disableDraw();
     },
-    removeLastVertex(shape) {
-        this.Draw.removeLastVertex(shape);
+    removeLastVertex() {
+        this.Draw.removeLastVertex();
     },
     setPathOptions(options) {
         this.Draw.setPathOptions(options);
@@ -49,7 +49,8 @@ const Map = L.Class.extend({
             this.map.eachLayer((layer) => {
                 layer.off("click", this.removeLayer);
             });
-        } else {
+        }
+        else {
             this._globalRemovalMode = true;
             this.map.eachLayer((layer) => {
                 if (layer.pm && !(layer.pm.options && layer.pm.options.preventMarkerRemoval)) {
@@ -77,10 +78,10 @@ const Map = L.Class.extend({
         });
 
         // filter out layers that don"t have the leaflet.pm instance
-        layers = layers.filter(layer => !!layer.pm);
+        layers = layers.filter((layer) => !!layer.pm);
 
         // filter out everything that"s leaflet.pm specific temporary stuff
-        layers = layers.filter(layer => !layer._pmTempLayer);
+        layers = layers.filter((layer) => !layer._pmTempLayer);
 
         this._globalEditMode = true;
 
@@ -103,11 +104,11 @@ const Map = L.Class.extend({
             }
         });
 
-        // filter out layers that don"t have the leaflet.pm instance
-        layers = layers.filter(layer => !!layer.pm);
+        // filter out layers that don't have the leaflet.pm instance
+        layers = layers.filter((layer) => !!layer.pm);
 
-        // filter out everything that"s leaflet.pm specific temporary stuff
-        layers = layers.filter(layer => !layer._pmTempLayer);
+        // filter out everything that's leaflet.pm specific temporary stuff
+        layers = layers.filter((layer) => !layer._pmTempLayer);
 
         this._globalEditMode = false;
 
@@ -132,7 +133,8 @@ const Map = L.Class.extend({
         if (this.globalEditEnabled()) {
             // disable
             this.disableGlobalEditMode();
-        } else {
+        }
+        else {
             // enable
             this.enableGlobalEditMode(options);
         }

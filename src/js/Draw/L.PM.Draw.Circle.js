@@ -70,6 +70,15 @@ Draw.Circle = Draw.extend({
         // TODO: think about moving this somewhere else?
         this._otherSnapLayers = [];
     },
+    disableDraw() {
+
+        if (!this._enabled) {
+            return;
+        }
+
+        this._map.fire("pm:drawcancel", {_id: this._id});
+        this.disable();
+    },
     disable() {
         // disable drawing mode
 
@@ -92,7 +101,7 @@ Draw.Circle = Draw.extend({
         this._map.removeLayer(this._layerGroup);
 
         // fire drawend event
-        this._map.fire("pm:drawend", {shape: this._shape});
+        this._map.fire("pm:drawend", {shape: this._shape, _id: this._id});
 
         // toggle the draw button of the Toolbar in case drawing mode got disabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, false);
@@ -189,6 +198,7 @@ Draw.Circle = Draw.extend({
         this._map.fire("pm:create", {
             shape: this._shape,
             layer: circleLayer,
+            _id: this._id
         });
     },
     _createMarker(latlng) {
@@ -205,7 +215,9 @@ Draw.Circle = Draw.extend({
         return marker;
     },
     removeLastVertex() {
+
         if (this.enabled()) {
+            console.log("Circle: removeLastVertex");
             this.disable();
             this.enable();
         }

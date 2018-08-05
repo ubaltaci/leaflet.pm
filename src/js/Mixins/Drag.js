@@ -10,7 +10,7 @@ const DragMixin = {
 
         this._originalMapDragState = this._layer._map.dragging._enabled;
 
-        // can we reliably save the map"s draggable state?
+        // can we reliably save the map's draggable state?
         // (if the mouse up event happens outside the container, then the map can become undraggable)
         this._safeToCacheDragState = true;
 
@@ -24,7 +24,7 @@ const DragMixin = {
             this._layer._map.dragging.enable();
         }
 
-        // if mouseup event fired, it"s safe to cache the map draggable state on the next mouse down
+        // if mouseup event fired, it's safe to cache the map draggable state on the next mouse down
         this._safeToCacheDragState = true;
 
         // clear up mousemove event
@@ -33,7 +33,7 @@ const DragMixin = {
         // clear up mouseup event
         this._layer.off("mouseup", this._dragMixinOnMouseUp, this);
 
-        // if no drag happened, don"t do anything
+        // if no drag happened, don't do anything
         if (!this._dragging) {
             return false;
         }
@@ -91,7 +91,7 @@ const DragMixin = {
         if (this._safeToCacheDragState) {
             this._originalMapDragState = this._layer._map.dragging._enabled;
 
-            // don"t cache the state again until another mouse up is registered
+            // dont cache the state again until another mouse up is registered
             this._safeToCacheDragState = false;
         }
 
@@ -119,7 +119,7 @@ const DragMixin = {
         };
 
         // move the coordinates by the delta
-        const moveCoords = coords =>
+        const moveCoords = (coords) =>
             // alter the coordinates
             coords.map((currentLatLng) => {
                 if (Array.isArray(currentLatLng)) {

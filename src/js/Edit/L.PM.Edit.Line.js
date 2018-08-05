@@ -69,6 +69,26 @@ Edit.Line = Edit.extend({
         this.disable(e.target);
     },
 
+    enableMidVertices() {
+
+        this._markerGroup.eachLayer((layer) => {
+            const el = layer._icon;
+            if (el && L.DomUtil.hasClass(el, "marker-icon-middle")) {
+                L.DomUtil.addClass(el, "marker-icon-middle-active");
+            }
+        });
+    },
+
+    disableMidVertices() {
+
+        this._markerGroup.eachLayer((layer) => {
+            const el = layer._icon;
+            if (el && L.DomUtil.hasClass(el, "marker-icon-middle")) {
+                L.DomUtil.removeClass(el, "marker-icon-middle-active");
+            }
+        });
+    },
+
     enableDrag() {
 
         this._initDraggableLayer();
@@ -248,7 +268,7 @@ Edit.Line = Edit.extend({
     },
 
     // creates the middle markes between coordinates
-    _createMiddleMarker(leftM, rightM) {
+    _createMiddleMarker(leftM, rightM, isMidVerticesActive) {
         // cancel if there are no two markers
         if (!leftM || !rightM) {
             return false;
@@ -257,7 +277,9 @@ Edit.Line = Edit.extend({
         const latlng = this._calcMiddleLatLng(leftM.getLatLng(), rightM.getLatLng());
 
         const middleMarker = this._createMarker(latlng);
-        const middleIcon = L.divIcon({className: "marker-icon marker-icon-middle"});
+        let className = isMidVerticesActive ? "marker-icon marker-icon-middle marker-icon-middle-active" : "marker-icon marker-icon-middle";
+        const middleIcon = L.divIcon({className});
+
         middleMarker.setIcon(middleIcon);
 
         // save reference to this middle markers on the neighboor regular markers
@@ -320,9 +342,10 @@ Edit.Line = Edit.extend({
         // set new latlngs to update polygon
         this._layer.setLatLngs(coords);
 
+        const isMidVerticesActive = L.DomUtil.hasClass(newM._icon, "marker-icon-middle-active");
         // create the new middlemarkers
-        this._createMiddleMarker(leftM, newM);
-        this._createMiddleMarker(newM, rightM);
+        this._createMiddleMarker(leftM, newM, isMidVerticesActive);
+        this._createMiddleMarker(newM, rightM, isMidVerticesActive);
 
         // fire edit event
         this._fireEdit();
@@ -420,7 +443,7 @@ Edit.Line = Edit.extend({
             rightMarkerIndex = index + 1 >= markerArr.length ? undefined : index + 1;
         }
 
-        // don"t create middlemarkers if there is only one marker left
+        // don't create middlemarkers if there is only one marker left
         if (rightMarkerIndex !== leftMarkerIndex) {
             const leftM = markerArr[leftMarkerIndex];
             const rightM = markerArr[rightMarkerIndex];

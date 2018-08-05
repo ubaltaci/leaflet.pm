@@ -12,6 +12,10 @@ Draw.Line = Draw.extend({
         this._doesBoundryViolated = false;
     },
     enable(options) {
+
+        this._doesSelfIntersect = false;
+        this._doesBoundryViolated = false;
+
         L.Util.setOptions(this, options);
 
         // fallback option for finishOnDoubleClick
@@ -22,6 +26,7 @@ Draw.Line = Draw.extend({
 
         // enable draw mode
         this._enabled = true;
+        this._id = this.options._id;
 
         // create a new layergroup
         this._layerGroup = new L.LayerGroup();
@@ -87,16 +92,25 @@ Draw.Line = Draw.extend({
         // TODO: think about moving this somewhere else?
         this._otherSnapLayers = [];
     },
+    disableDraw() {
+
+        if (!this._enabled) {
+            return;
+        }
+
+        this._map.fire("pm:drawcancel", {_id: this._id});
+        this.disable();
+    },
     disable() {
+
         // disable draw mode
 
-        // cancel, if drawing mode isn"t even enabled
+        // cancel, if drawing mode isn't even enabled
         if (!this._enabled) {
             return;
         }
 
         this._enabled = false;
-
         // reset cursor
         this._map._container.style.cursor = "";
 
@@ -115,7 +129,7 @@ Draw.Line = Draw.extend({
         this._map.removeLayer(this._layerGroup);
 
         // fire drawend event
-        this._map.fire("pm:drawend", {shape: this._shape});
+        this._map.fire("pm:drawend", {shape: this._shape, _id: this._id});
 
         // toggle the draw button of the Toolbar in case drawing mode got disabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, false);
@@ -286,6 +300,7 @@ Draw.Line = Draw.extend({
         this._map.fire("pm:create", {
             shape: this._shape,
             layer: polylineLayer,
+            _id: this._id
         });
 
         if (this.options.snappable) {
@@ -309,11 +324,14 @@ Draw.Line = Draw.extend({
         return marker;
     },
     removeLastVertex() {
+
         if (this.enabled() && this._layer && this._layer.pm.removeLastVertex(true)) {
+            console.log("Line: removeLastVertex");
             const layers = this._layerGroup.getLayers();
             const lastVertex = layers[layers.length - 1];
             this._layerGroup.removeLayer(lastVertex);
             this._syncHintLine();
+            this._checkRules();
         }
     },
 });

@@ -1,10 +1,10 @@
-import Draw from './L.PM.Draw';
+import Draw from "./L.PM.Draw";
 
 Draw.Rectangle = Draw.extend({
     initialize(map) {
         this._map = map;
-        this._shape = 'Rectangle';
-        this.toolbarButtonName = 'drawRectangle';
+        this._shape = "Rectangle";
+        this.toolbarButtonName = "drawRectangle";
     },
     enable(options) {
         // TODO: Think about if these options could be passed globally for all
@@ -13,6 +13,7 @@ Draw.Rectangle = Draw.extend({
 
         // enable draw mode
         this._enabled = true;
+        this._id = this.options._id;
 
         // create a new layergroup
         this._layerGroup = new L.LayerGroup();
@@ -24,9 +25,9 @@ Draw.Rectangle = Draw.extend({
         this._layer._pmTempLayer = true;
 
         // this is the marker at the origin of the rectangle
-        // this needs to be present, for tracking purposes, but we'll make it invisible if a user doesn't want to see it!
+        // this needs to be present, for tracking purposes, but we"ll make it invisible if a user doesn"t want to see it!
         this._startMarker = L.marker([0, 0], {
-            icon: L.divIcon({ className: 'marker-icon rect-start-marker' }),
+            icon: L.divIcon({className: "marker-icon rect-start-marker"}),
             draggable: true,
             zIndexOffset: 100,
             opacity: this.options.cursorMarker ? 1 : 0,
@@ -36,20 +37,20 @@ Draw.Rectangle = Draw.extend({
 
         // this is the hintmarker on the mouse cursor
         this._hintMarker = L.marker([0, 0], {
-            icon: L.divIcon({ className: 'marker-icon cursor-marker' }),
+            icon: L.divIcon({className: "marker-icon cursor-marker"}),
         });
         this._hintMarker._pmTempLayer = true;
         this._layerGroup.addLayer(this._hintMarker);
 
         // show the hintmarker if the option is set
         if (this.options.cursorMarker) {
-            L.DomUtil.addClass(this._hintMarker._icon, 'visible');
+            L.DomUtil.addClass(this._hintMarker._icon, "visible");
 
             // Add two more matching style markers, if cursor marker is rendered
             this._styleMarkers = [];
             for (let i = 0; i < 2; i += 1) {
                 const styleMarker = L.marker([0, 0], {
-                    icon: L.divIcon({ className: 'marker-icon rect-style-marker' }),
+                    icon: L.divIcon({className: "marker-icon rect-style-marker"}),
                     draggable: true,
                     zIndexOffset: 100,
                 });
@@ -61,16 +62,16 @@ Draw.Rectangle = Draw.extend({
         }
 
         // change map cursor
-        this._map._container.style.cursor = 'crosshair';
+        this._map._container.style.cursor = "crosshair";
 
         // create a polygon-point on click
-        this._map.on('click', this._placeStartingMarkers, this);
+        this._map.on("click", this._placeStartingMarkers, this);
 
         // sync hint marker with mouse cursor
-        this._map.on('mousemove', this._syncHintMarker, this);
+        this._map.on("mousemove", this._syncHintMarker, this);
 
         // fire drawstart event
-        this._map.fire('pm:drawstart', { shape: this._shape, workingLayer: this._layer });
+        this._map.fire("pm:drawstart", {shape: this._shape, workingLayer: this._layer});
 
         // toggle the draw button of the Toolbar in case drawing mode got enabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, true);
@@ -79,10 +80,19 @@ Draw.Rectangle = Draw.extend({
         // TODO: think about moving this somewhere else?
         this._otherSnapLayers = [];
     },
+    disableDraw() {
+
+        if (!this._enabled) {
+            return;
+        }
+
+        this._map.fire("pm:drawcancel", {_id: this._id});
+        this.disable();
+    },
     disable() {
         // disable drawing mode
 
-        // cancel, if drawing mode isn't event enabled
+        // cancel, if drawing mode isn"t event enabled
         if (!this._enabled) {
             return;
         }
@@ -90,18 +100,18 @@ Draw.Rectangle = Draw.extend({
         this._enabled = false;
 
         // reset cursor
-        this._map._container.style.cursor = '';
+        this._map._container.style.cursor = "";
 
         // unbind listeners
-        this._map.off('click', this._finishShape, this);
-        this._map.off('click', this._placeStartingMarkers, this);
-        this._map.off('mousemove', this._syncHintMarker, this);
+        this._map.off("click", this._finishShape, this);
+        this._map.off("click", this._placeStartingMarkers, this);
+        this._map.off("mousemove", this._syncHintMarker, this);
 
         // remove helping layers
         this._map.removeLayer(this._layerGroup);
 
         // fire drawend event
-        this._map.fire('pm:drawend', { shape: this._shape });
+        this._map.fire("pm:drawend", {shape: this._shape, _id: this._id});
 
         // toggle the draw button of the Toolbar in case drawing mode got disabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, false);
@@ -117,13 +127,14 @@ Draw.Rectangle = Draw.extend({
     toggle(options) {
         if (this.enabled()) {
             this.disable();
-        } else {
+        }
+        else {
             this.enable(options);
         }
     },
     _placeStartingMarkers(e) {
-        // assign the coordinate of the click to the hintMarker, that's necessary for
-        // mobile where the marker can't follow a cursor
+        // assign the coordinate of the click to the hintMarker, that"s necessary for
+        // mobile where the marker can"t follow a cursor
         if (!this._hintMarker._snapped) {
             this._hintMarker.setLatLng(e.latlng);
         }
@@ -132,19 +143,19 @@ Draw.Rectangle = Draw.extend({
         const latlng = this._hintMarker.getLatLng();
 
         // show and place start marker
-        L.DomUtil.addClass(this._startMarker._icon, 'visible');
+        L.DomUtil.addClass(this._startMarker._icon, "visible");
         this._startMarker.setLatLng(latlng);
 
         // if we have the other two visibilty markers, show and place them now
         if (this.options.cursorMarker && this._styleMarkers) {
             this._styleMarkers.forEach((styleMarker) => {
-                L.DomUtil.addClass(styleMarker._icon, 'visible');
+                L.DomUtil.addClass(styleMarker._icon, "visible");
                 styleMarker.setLatLng(latlng);
             });
         }
 
-        this._map.off('click', this._placeStartingMarkers, this);
-        this._map.on('click', this._finishShape, this);
+        this._map.off("click", this._placeStartingMarkers, this);
+        this._map.on("click", this._finishShape, this);
 
         this._setRectangleOrigin();
     },
@@ -157,7 +168,7 @@ Draw.Rectangle = Draw.extend({
 
             this._layer.setLatLngs([latlng, latlng]);
 
-            this._hintMarker.on('move', this._syncRectangleSize, this);
+            this._hintMarker.on("move", this._syncRectangleSize, this);
         }
     },
     _syncHintMarker(e) {
@@ -206,9 +217,10 @@ Draw.Rectangle = Draw.extend({
         this.disable();
 
         // fire the pm:create event and pass shape and layer
-        this._map.fire('pm:create', {
+        this._map.fire("pm:create", {
             shape: this._shape,
             layer: rectangleLayer,
+            _id: this._id
         });
     },
     _findCorners() {
@@ -222,7 +234,9 @@ Draw.Rectangle = Draw.extend({
         return [northwest, northeast, southeast, southwest];
     },
     removeLastVertex() {
+
         if (this.enabled()) {
+            console.log("Rectangle: removeLastVertex");
             this.disable();
             this.enable();
         }

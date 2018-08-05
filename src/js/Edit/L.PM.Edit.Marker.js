@@ -1,4 +1,4 @@
-import Edit from './L.PM.Edit';
+import Edit from "./L.PM.Edit";
 
 Edit.Marker = Edit.extend({
     initialize(layer) {
@@ -7,13 +7,14 @@ Edit.Marker = Edit.extend({
         this._enabled = false;
 
         // register dragend event e.g. to fire pm:edit
-        this._layer.on('dragend', this._onDragEnd, this);
+        this._layer.on("dragend", this._onDragEnd, this);
     },
 
     toggleEdit(options) {
         if (!this.enabled()) {
             this.enable(options);
-        } else {
+        }
+        else {
             this.disable();
         }
     },
@@ -33,7 +34,7 @@ Edit.Marker = Edit.extend({
 
         // enable removal for the marker
         if (!this.options.preventMarkerRemoval) {
-            this._layer.on('contextmenu', this._removeMarker, this);
+            this._layer.on("contextmenu", this._removeMarker, this);
         }
 
         // enable dragging and removal for the marker
@@ -56,24 +57,35 @@ Edit.Marker = Edit.extend({
 
         // disable dragging and removal for the marker
         this._layer.dragging.disable();
-        this._layer.off('contextmenu', this._removeMarker, this);
+        this._layer.off("contextmenu", this._removeMarker, this);
 
         if (this._layerEdited) {
-            this._layer.fire('pm:update', {});
+            this._layer.fire("pm:update", {});
         }
         this._layerEdited = false;
+    },
+
+    enableDrag() {
+
+        this._layer.dragging.enable();
+    },
+
+    disableDrag() {
+
+        this._layer.dragging.disable();
     },
     _removeMarker(e) {
         const marker = e.target;
         marker.remove();
-        // TODO: find out why this is fired manually, shouldn't it be catched by L.PM.Map 'layerremove'?
-        marker.fire('pm:remove');
+        // TODO: find out why this is fired manually, shouldn't it be catched by L.PM.Map "layerremove"?
+        marker.fire("pm:remove");
     },
+
     _onDragEnd(e) {
         const marker = e.target;
 
         // fire the pm:edit event and pass shape and marker
-        marker.fire('pm:edit');
+        marker.fire("pm:edit");
         this._layerEdited = true;
     },
 
@@ -83,13 +95,13 @@ Edit.Marker = Edit.extend({
 
         this.options.snapDistance = this.options.snapDistance || 30;
 
-        marker.off('drag', this._handleSnapping, this);
-        marker.on('drag', this._handleSnapping, this);
+        marker.off("drag", this._handleSnapping, this);
+        marker.on("drag", this._handleSnapping, this);
 
-        marker.off('dragend', this._cleanupSnapping, this);
-        marker.on('dragend', this._cleanupSnapping, this);
+        marker.off("dragend", this._cleanupSnapping, this);
+        marker.on("dragend", this._cleanupSnapping, this);
 
-        marker.off('pm:dragstart', this._unsnap, this);
-        marker.on('pm:dragstart', this._unsnap, this);
+        marker.off("pm:dragstart", this._unsnap, this);
+        marker.on("pm:dragstart", this._unsnap, this);
     },
 });
