@@ -98,10 +98,9 @@ Draw.Line = Draw.extend({
             return;
         }
 
-        this._map.fire("pm:drawcancel", {_id: this._id});
-        this.disable();
+        this.disable(true);
     },
-    disable() {
+    disable(isCancelled) {
 
         // disable draw mode
 
@@ -130,6 +129,10 @@ Draw.Line = Draw.extend({
 
         // fire drawend event
         this._map.fire("pm:drawend", {shape: this._shape, _id: this._id});
+        if (isCancelled) {
+            // fire drawcancel event
+            this._map.fire("pm:drawcancel", {_id: this._id});
+        }
 
         // toggle the draw button of the Toolbar in case drawing mode got disabled without the button
         this._map.pm.Toolbar.toggleButton(this.toolbarButtonName, false);
@@ -326,7 +329,7 @@ Draw.Line = Draw.extend({
     removeLastVertex() {
 
         if (this.enabled() && this._layer && this._layer.pm.removeLastVertex(true)) {
-            console.log("Line: removeLastVertex");
+
             const layers = this._layerGroup.getLayers();
             const lastVertex = layers[layers.length - 1];
             this._layerGroup.removeLayer(lastVertex);

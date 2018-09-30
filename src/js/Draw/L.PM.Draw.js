@@ -12,6 +12,7 @@ const Draw = L.Class.extend({
         allowSelfIntersection: true,
         templineStyle: {},
         hintlineStyle: {
+            color: "#3388ff",
             dashArray: "5,5",
         },
         markerStyle: {

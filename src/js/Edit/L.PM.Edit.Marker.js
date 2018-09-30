@@ -82,6 +82,14 @@ Edit.Marker = Edit.extend({
     },
 
     _onDragEnd(e) {
+
+        const el = this._layer._icon;
+        console.log(el);
+
+        // if (el && L.DomUtil.hasClass(el, "marker-icon-middle")) {
+        //     L.DomUtil.addClass(el, "marker-icon-middle-active");
+        // }
+
         const marker = e.target;
 
         // fire the pm:edit event and pass shape and marker

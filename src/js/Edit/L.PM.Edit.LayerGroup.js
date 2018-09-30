@@ -69,6 +69,7 @@ Edit.LayerGroup = L.Class.extend({
             "pm:markerdragstart",
             "pm:vertexadded",
             "pm:vertexremoved",
+            "pm:vertexcannotberemoved",
             "pm:centerplaced"
         ];
 

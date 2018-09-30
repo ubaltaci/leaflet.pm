@@ -28,6 +28,7 @@ Edit.Line = Edit.extend({
     },
 
     enable(options) {
+
         L.Util.setOptions(this, options);
 
         this._map = this._layer._map;
@@ -112,6 +113,7 @@ Edit.Line = Edit.extend({
     },
 
     disable(poly = this._layer) {
+
         // if it"s not enabled, it doesn"t need to be disabled
         if (!this.enabled()) {
             return false;
@@ -325,7 +327,7 @@ Edit.Line = Edit.extend({
         const coords = this._layer._latlngs;
 
         // the index path to the marker inside the multidimensional marker array
-        const {indexPath, index, parentPath} = this.findDeepMarkerIndex(this._markers, rightM);
+        const {indexPath, index, parentPath} = this.findDeepMarkerIndex(this._markers, leftM);
 
         // define the coordsRing that is edited
         const coordsRing = indexPath.length > 1 ? get(coords, parentPath) : coords;
@@ -334,10 +336,10 @@ Edit.Line = Edit.extend({
         const markerArr = indexPath.length > 1 ? get(this._markers, parentPath) : this._markers;
 
         // add coordinate to coordinate array
-        coordsRing.splice(index, 0, latlng);
+        coordsRing.splice(index + 1, 0, latlng);
 
         // add marker to marker array
-        markerArr.splice(index, 0, newM);
+        markerArr.splice(index + 1, 0, newM);
 
         // set new latlngs to update polygon
         this._layer.setLatLngs(coords);
@@ -353,8 +355,8 @@ Edit.Line = Edit.extend({
         this._layer.fire("pm:vertexadded", {
             layer: this._layer,
             marker: newM,
-            indexPath,
-            // TODO: maybe add latlng as well?
+            indexPath: this.findDeepMarkerIndex(this._markers, newM).indexPath,
+            latlng
         });
 
         if (this.options.snappable) {
@@ -363,7 +365,7 @@ Edit.Line = Edit.extend({
     },
 
     _removeMarker(e, isDrawing) {
-        // if self intersection isn"t allowed, save the coords upon dragstart
+        // if self intersection isn't allowed, save the coords upon dragstart
         // in case we need to reset the layer
         if (!this.options.allowSelfIntersection) {
             const c = this._layer.getLatLngs();
@@ -386,6 +388,13 @@ Edit.Line = Edit.extend({
 
         // define the coordsRing that is edited
         const coordsRing = indexPath.length > 1 ? get(coords, parentPath) : coords;
+
+        if (!coordsRing || coordsRing.length <= 3) { // If ring has only 2 points do not remove.
+
+            return this._map.fire("pm:vertexcannotberemoved", {
+                layer: this._layer
+            });
+        }
 
         // define the markers array that is edited
         const markerArr = indexPath.length > 1 ? get(this._markers, parentPath) : this._markers;
@@ -411,7 +420,6 @@ Edit.Line = Edit.extend({
         }
 
         // TODO: we may should remove all empty coord-rings here as well.
-
         // if no coords are left, remove the layer
         if (this.isEmptyDeep(coords) && !isDrawing) {
             this._layer.remove();
@@ -590,7 +598,9 @@ Edit.Line = Edit.extend({
         // fire edit event
         this._fireEdit();
     },
+
     _onMarkerDragStart(e) {
+
         const marker = e.target;
         const {indexPath} = this.findDeepMarkerIndex(this._markers, marker);
 
